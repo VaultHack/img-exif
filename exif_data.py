@@ -7,10 +7,10 @@ import PIL.ExifTags as ExifTags
 
 
 def process_base_dirs(base_dirs):
-    # md5 hashes of the files we've extraced data for
+    # md5 hashes of the files we've extracted data for
     files_scanned = set()
     exif_data = []
-    for base_dir in base_dirs:
+    for base_dir in [base_dirs]:
         for root, dirs, files in os.walk(base_dir):
             for file_name in files:
                 if file_name.lower().endswith('.jpg'):
@@ -36,8 +36,12 @@ def get_md5(file_path, block_size=2**20):
 
 def get_exif_data(file_path):
     img = Image.open(file_path)
-    return {ExifTags.TAGS[k]: v for k, v in img._getexif().items()
-            if k in ExifTags.TAGS}
+    raw_exif = img._getexif()
+    if raw_exif is None:
+        return {}
+    else:
+        return {ExifTags.TAGS[k]: v for k, v in raw_exif.items()
+                if k in ExifTags.TAGS}
 
 
 def make_df(exif_data, rows=('FocalLength')):
